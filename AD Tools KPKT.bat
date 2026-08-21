@@ -67,14 +67,16 @@ echo ---------------------------------------------------
 echo [1] Lihat Detail Pengguna (View Details)
 echo [2] Ubah Nama Penuh Pengguna (Rename Display Name)
 echo [3] Semak PC yang menggunakan user ID
-echo [4] Kembali ke Menu Utama
+echo [4] Semak IP
+echo [0] Kembali ke Menu Utama
 echo ---------------------------------------------------
 set /p uchoice="Pilih tindakan (1-3): "
 
 if "%uchoice%"=="1" goto VIEW_USER_INFO
 if "%uchoice%"=="2" goto RENAME_USER_INFO
 if "%uchoice%"=="3" goto CHECK_USER_PC
-if "%uchoice%"=="4" goto MENU
+if "%uchoice%"=="4" goto LOOKUP_IP
+if "%uchoice%"=="0" goto MENU
 goto USER_DETAILS
 
 :VIEW_USER_INFO
