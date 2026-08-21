@@ -118,6 +118,22 @@ echo.
 pause
 goto MENU
 
+:LOOKUP_IP
+cls
+echo ---------------------------------------------------
+echo       CAIRAN NAMA PC DARIPADA ALAMAT IP (DNS)
+echo ---------------------------------------------------
+set /p targetip="Masukkan Alamat IP (contoh 10.x.x.x): "
+echo.
+echo Membaca rekod pendaftaran dari Pelayan DNS Domain...
+echo ---------------------------------------------------
+powershell -Command "try { $hostentry = [System.Net.Dns]::GetHostEntry('%targetip%'); Write-Host '[BERJAYA DIJUMPAI]' -ForegroundColor Green; Write-Host \"Alamat IP  : %targetip%\"; Write-Host \"Nama PC / Hostname : $($hostentry.HostName)\" -ForegroundColor Cyan } catch { Write-Host '[RALAT] IP ini tidak ditemui dalam rekod DNS Server atau belum didaftarkan.' -ForegroundColor Red }"
+echo ---------------------------------------------------
+echo.
+pause
+goto USER_DETAILS
+
+
 :CHECK_USER_PC
 cls
 echo ---------------------------------------------------
