@@ -125,13 +125,13 @@ echo         SEMAK LOKASI LOG MASUK PC PENGGUNA
 echo ---------------------------------------------------
 set /p username="Masukkan sAMAccountName pengguna: "
 echo.
-echo Sedang mengimbas rekod tiket log masuk (Kerberos) di Domain Controller...
+echo Sedang mengimbas maklumat peranti dari Active Directory...
 echo ---------------------------------------------------
-powershell -Command "$user='%username%'; try { $events = Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4768} -MaxEvents 500 -ErrorAction Stop | Where-Object { $_.Properties[0].Value -eq $user -and $_.Properties[9].Value -ne '127.0.0.1' }; if ($events) { Write-Host 'REKOD LOG MASUK TERAKHIR DIJUMPAI:' -ForegroundColor Cyan; $events | Select-Object -First 5 @{N='Masa Log Masuk';E={$_.TimeCreated}}, @{N='ID Pengguna';E={$_.Properties[0].Value}}, @{N='Alamat IP / PC';E={$_.Properties[9].Value -replace '::ffff:', ''}} | Format-Table -AutoSize } else { Write-Host '[INFO] Tiada rekod log masuk ditemui untuk ID ini dalam rekod semasa DC.' -ForegroundColor Yellow } } catch { Write-Host '[RALAT] Tiada kebenaran membaca Security Log DC atau perkhidmatan disekat.' -ForegroundColor Red }"
+powershell -Command "$u='%username%'; try { $user = Get-ADUser -Identity $u -Properties LastLogonDate, Description, CanonicalName -ErrorAction Stop; Write-Host \"Maklumat Pengguna : $($user.Name) ($($user.sAMAccountName))\" -ForegroundColor Cyan; Write-Host \"Masa Log Masuk Last : $($user.LastLogonDate)\"; Write-Host \"Lokasi OU/Unit     : $($user.CanonicalName)\"; echo ''; echo 'Mengimbas sesi aktif pada peranti rangkaian...'; $sessions = Get-SmbSession | Where-Object ClientUserName -like \"*$u*\" -ErrorAction SilentlyContinue; if ($sessions) { Write-Host '[DIJUMPAI] Sesi Aktif Pada PC/Peranti:' -ForegroundColor Green; $sessions | Select-Object @{N='Nama PC / IP';E={$_.ClientComputerName}}, @{N='User';E={$_.ClientUserName}}, NumOpens | Format-Table -AutoSize } else { Write-Host '[INFO] Pengguna tidak mempunyai sesi fail aktif. Membaca maklumat peranti AD...' -ForegroundColor Yellow; $comp = Get-ADComputer -Filter \"Description -like '*$u*' -or Name -like '*$u*'\" -Properties IPv4Address, OperatingSystem, LastLogonDate -ErrorAction SilentlyContinue; if ($comp) { Write-Host '[DIJUMPAI] PC Utama Didaftarkan atas Pengguna:' -ForegroundColor Green; $comp | Select-Object Name, IPv4Address, OperatingSystem, LastLogonDate | Format-Table -AutoSize } else { Write-Host '[INFO] Tiada PC khusus dipautkan dengan ID pengguna ini dalam rekod AD.' -ForegroundColor Red } } } catch { Write-Host '[RALAT] Pengguna tidak dijumpai dalam Active Directory.' -ForegroundColor Red }"
 echo ---------------------------------------------------
 echo.
 pause
-goto MENU
+goto USER_DETAILS
 
 :RESET_PWD
 cls
