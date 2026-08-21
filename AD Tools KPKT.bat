@@ -66,13 +66,15 @@ echo              MAKLUMAT & TUKAR NAMA PENGGUNA
 echo ---------------------------------------------------
 echo [1] Lihat Detail Pengguna (View Details)
 echo [2] Ubah Nama Penuh Pengguna (Rename Display Name)
-echo [3] Kembali ke Menu Utama
+echo [3] Semak PC yang menggunakan user ID
+echo [4] Kembali ke Menu Utama
 echo ---------------------------------------------------
 set /p uchoice="Pilih tindakan (1-3): "
 
 if "%uchoice%"=="1" goto VIEW_USER_INFO
 if "%uchoice%"=="2" goto RENAME_USER_INFO
-if "%uchoice%"=="3" goto MENU
+if "%uchoice%"=="3" goto CHECK_USER_PC
+if "%uchoice%"=="4" goto MENU
 goto USER_DETAILS
 
 :VIEW_USER_INFO
@@ -116,6 +118,21 @@ echo.
 pause
 goto MENU
 
+:CHECK_USER_PC
+cls
+echo ---------------------------------------------------
+echo         SEMAK LOKASI LOG MASUK PC PENGGUNA
+echo ---------------------------------------------------
+set /p username="Masukkan sAMAccountName pengguna: "
+echo.
+echo Sedang mengimbas log peristiwa dari Domain Controller...
+echo (Proses ini mungkin mengambil masa beberapa saat)
+echo ---------------------------------------------------
+powershell -Command "try { $events = Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4624} -MaxEvents 100 -ErrorAction Stop | Where-Object {$_.Properties[5].Value -eq '%username%' -and $_.Properties[18].Value -ne '-'}; if ($events) { $events | Select-Object -First 5 @{N='Masa Log Masuk';E={$_.TimeCreated}}, @{N='Nama PC / IP';E={$_.Properties[18].Value}} | Format-Table -AutoSize } else { Write-Host '[INFO] Tiada rekod log masuk ditemui untuk pengguna ini dalam log semasa.' -ForegroundColor Yellow } } catch { Write-Host '[RALAT] Akses ditolak atau tiada kebenaran membaca Security Log DC.' -ForegroundColor Red }"
+echo ---------------------------------------------------
+echo.
+pause
+goto MENU
 
 :RESET_PWD
 cls
