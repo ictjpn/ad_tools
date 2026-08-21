@@ -125,10 +125,9 @@ echo         SEMAK LOKASI LOG MASUK PC PENGGUNA
 echo ---------------------------------------------------
 set /p username="Masukkan sAMAccountName pengguna: "
 echo.
-echo Sedang mengimbas log peristiwa dari Domain Controller...
-echo (Proses ini mungkin mengambil masa beberapa saat)
+echo Sedang mengimbas rekod tiket log masuk (Kerberos) di Domain Controller...
 echo ---------------------------------------------------
-powershell -Command "try { $events = Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4624} -MaxEvents 100 -ErrorAction Stop | Where-Object {$_.Properties[5].Value -eq '%username%' -and $_.Properties[18].Value -ne '-'}; if ($events) { $events | Select-Object -First 5 @{N='Masa Log Masuk';E={$_.TimeCreated}}, @{N='Nama PC / IP';E={$_.Properties[18].Value}} | Format-Table -AutoSize } else { Write-Host '[INFO] Tiada rekod log masuk ditemui untuk pengguna ini dalam log semasa.' -ForegroundColor Yellow } } catch { Write-Host '[RALAT] Akses ditolak atau tiada kebenaran membaca Security Log DC.' -ForegroundColor Red }"
+powershell -Command "$user='%username%'; try { $events = Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4768} -MaxEvents 500 -ErrorAction Stop | Where-Object { $_.Properties[0].Value -eq $user -and $_.Properties[9].Value -ne '127.0.0.1' }; if ($events) { Write-Host 'REKOD LOG MASUK TERAKHIR DIJUMPAI:' -ForegroundColor Cyan; $events | Select-Object -First 5 @{N='Masa Log Masuk';E={$_.TimeCreated}}, @{N='ID Pengguna';E={$_.Properties[0].Value}}, @{N='Alamat IP / PC';E={$_.Properties[9].Value -replace '::ffff:', ''}} | Format-Table -AutoSize } else { Write-Host '[INFO] Tiada rekod log masuk ditemui untuk ID ini dalam rekod semasa DC.' -ForegroundColor Yellow } } catch { Write-Host '[RALAT] Tiada kebenaran membaca Security Log DC atau perkhidmatan disekat.' -ForegroundColor Red }"
 echo ---------------------------------------------------
 echo.
 pause
