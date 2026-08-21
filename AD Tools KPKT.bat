@@ -15,7 +15,7 @@ if %errorlevel% neq 0 (
 :MENU
 cls
 echo =========================================================
-echo        MENU PENTADBIRAN ACTIVE DIRECTORY LENGKAP  v 0.3 
+echo        MENU PENTADBIRAN ACTIVE DIRECTORY LENGKAP  v 0.4 
 echo =========================================================
 echo [1] Carian Pengguna (Search User)
 echo [2] Lihat Detail Pengguna (View Details)
