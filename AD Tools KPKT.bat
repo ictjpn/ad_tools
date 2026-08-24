@@ -144,7 +144,7 @@ echo         SEMAK STATUS RESERVATION DHCP
 echo ---------------------------------------------------
 set /p targetip="Masukkan Alamat IP yang ingin disemak: "
 echo.
-echo Sedang mengesan Pelayan DHCP & menyemak rekod...
+echo Sedang mengesan Pelayan DHCP dan menyemak rekod...
 echo ---------------------------------------------------
 powershell -Command "$dhcp = (Get-NetIPConfiguration | Where-Object {$_.IPv4DefaultGateway}).IPv4DhcpServer.ServerAddresses; if (-not $dhcp) { Write-Host '[RALAT] Gagal mengesan IP Pelayan DHCP.' -ForegroundColor Red; exit }; Write-Host \"Pelayan DHCP Dikesan : $dhcp\" -ForegroundColor Cyan; try { $res = Get-DhcpServerv4Reservation -ComputerName $dhcp -IPAddress '%targetip%' -ErrorAction Stop; Write-Host '[RESERVED] IP ini TELAH DI-RESERVE!' -ForegroundColor Green; $res | Select-Object IPAddress, ClientId, ScopeId, Name, Description | Format-Table -AutoSize } catch { try { $lease = Get-DhcpServerv4Lease -ComputerName $dhcp -IPAddress '%targetip%' -ErrorAction Stop; if ($lease.AddressState -like '*Reservation*') { Write-Host '[RESERVED] IP ini mempunyai Reservation.' -ForegroundColor Green; $lease | Format-Table -AutoSize } else { Write-Host '[BELUM RESERVED] IP ini wujud sebagai Lease Dinamik biasa (AddressState: ' $lease.AddressState ')' -ForegroundColor Yellow } } catch { Write-Host '[BEBAS / TIADA REKOD] IP ini tidak ditemui dalam rekod Lease atau Reservation DHCP.' -ForegroundColor Cyan } }"
 echo ---------------------------------------------------
