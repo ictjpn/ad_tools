@@ -144,7 +144,7 @@ echo         SEMAK STATUS RESERVATION DHCP
 echo ---------------------------------------------------
 set /p targetip="Masukkan Alamat IP yang ingin disemak: "
 echo.
-echo Menetapkan konfigurasi TrustedHosts & berhubung dengan DHCP Server (10.16.126.4)...
+echo Menetapkan konfigurasi TrustedHosts dan berhubung dengan DHCP Server (10.16.126.4)...
 echo ---------------------------------------------------
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$ip='%targetip%'; $server='10.16.126.4'; try { Set-Item WSMan:\localhost\Client\TrustedHosts -Value $server -Concatenate -Force -ErrorAction SilentlyContinue } catch {}; try { $res = Invoke-Command -ComputerName $server -ScriptBlock { param($target) Get-DhcpServerv4Scope | Get-DhcpServerv4Reservation | Where-Object IPAddress -eq $target } -ArgumentList $ip -ErrorAction Stop; if ($res) { Write-Host '[RESERVED] IP ini TELAH DI-RESERVE!' -ForegroundColor Green; $res | Select-Object IPAddress, ClientId, ScopeId, Name, Description | Format-Table -AutoSize } else { $lease = Invoke-Command -ComputerName $server -ScriptBlock { param($target) Get-DhcpServerv4Scope | Get-DhcpServerv4Lease | Where-Object IPAddress -eq $target } -ArgumentList $ip -ErrorAction SilentlyContinue; if ($lease) { Write-Host '[BELUM RESERVED] IP ini wujud sebagai Lease Dinamik biasa.' -ForegroundColor Yellow; $lease | Format-Table -AutoSize } else { Write-Host '[BEBAS / TIADA REKOD] IP ini tiada dalam pangkalan data DHCP Server.' -ForegroundColor Cyan } } } catch { Write-Host \"[RALAT] $($_.Exception.Message)\" -ForegroundColor Red }"
 echo ---------------------------------------------------
