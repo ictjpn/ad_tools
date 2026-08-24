@@ -20,6 +20,7 @@ echo =========================================================
 echo [1] Carian Pengguna (Search User)
 echo [2] Lihat Detail Pengguna (View Details)
 echo [X] Uji Password Pengguna
+echo [Z] Semak DHCP Reservation
 echo [3] Reset Password Pengguna
 echo [4] Buka Akaun Terkunci (Unlock Account)
 echo [5] Senaraikan SEMUA Akaun Terkunci (List Locked Accounts)
@@ -41,6 +42,7 @@ if "%choice%"=="5" goto LIST_LOCKED
 if "%choice%"=="6" goto GROUP_MGMT
 if "%choice%"=="7" goto ACCOUNT_TOGGLE
 if "%choice%"=="0" goto INSTALL_RSAT
+if "%choice%"=="X" goto CHECK_DHCP_RESERVATION
 if "%choice%"=="8" exit
 goto MENU
 
@@ -135,6 +137,21 @@ echo.
 pause
 goto USER_DETAILS
 
+:CHECK_DHCP_RESERVATION
+cls
+echo ---------------------------------------------------
+echo         SEMAK STATUS RESERVATION DHCP
+echo ---------------------------------------------------
+set /p dhcpserver="Masukkan Nama/IP Server DHCP: "
+set /p targetip="Masukkan Alamat IP yang ingin disemak: "
+echo.
+echo Sedang menyemak status reservation pada server DHCP...
+echo ---------------------------------------------------
+powershell -Command "try { $res = Get-DhcpServerv4Reservation -ComputerName '%dhcpserver%' -IPAddress '%targetip%' -ErrorAction Stop; Write-Host '[RESERVED] IP ini TELAH DI-RESERVE!' -ForegroundColor Green; $res | Select-Object IPAddress, ClientId, ScopeId, Name, Description | Format-Table -AutoSize } catch { try { $lease = Get-DhcpServerv4Lease -ComputerName '%dhcpserver%' -IPAddress '%targetip%' -ErrorAction Stop; if ($lease.AddressState -like '*Reservation*') { Write-Host '[RESERVED] IP ini mempunyai Reservation.' -ForegroundColor Green; $lease | Format-Table -AutoSize } else { Write-Host '[BELUM RESERVED] IP ini wujud sebagai Lease Dinamik biasa (AddressState: ' $lease.AddressState ')' -ForegroundColor Yellow } } catch { Write-Host '[BEBAS / TIADA REKOD] IP ini tidak ditemui dalam rekod Lease atau Reservation DHCP.' -ForegroundColor Cyan } }"
+echo ---------------------------------------------------
+echo.
+pause
+goto MENU
 
 :CHECK_USER_PC
 cls
