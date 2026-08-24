@@ -15,7 +15,7 @@ if %errorlevel% neq 0 (
 :MENU
 cls
 echo ==========================================================
-echo        MENU PENTADBIRAN ACTIVE DIRECTORY LENGKAP  v 0.4.5
+echo        MENU PENTADBIRAN ACTIVE DIRECTORY LENGKAP  v 0.4.6
 echo ==========================================================
 echo [1] Carian Pengguna (Search User)
 echo [2] Lihat Detail Pengguna (View Details)
@@ -144,9 +144,9 @@ echo         SEMAK STATUS RESERVATION DHCP
 echo ---------------------------------------------------
 set /p targetip="Masukkan Alamat IP yang ingin disemak: "
 echo.
-echo Mengesan Pelayan DHCP dan menyemak rekod...
+echo Sedang berhubung dengan Pelayan DHCP (10.16.126.4)...
 echo ---------------------------------------------------
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$target='%targetip%'; $dhcp = (Get-NetIPConfiguration | Where-Object {$_.IPv4DefaultGateway -ne $null}).IPv4DhcpServer.ServerAddresses | Select-Object -First 1; if (-not $dhcp) { $dhcp = '10.16.126.4' }; Write-Host \"Pelayan DHCP Digunakan : $dhcp\" -ForegroundColor Cyan; try { $res = Get-DhcpServerv4Reservation -ComputerName $dhcp -IPAddress $target -ErrorAction Stop; Write-Host '[RESERVED] IP ini TELAH DI-RESERVE!' -ForegroundColor Green; $res | Select-Object IPAddress, ClientId, ScopeId, Name, Description | Format-Table -AutoSize } catch { try { $lease = Get-DhcpServerv4Lease -ComputerName $dhcp -IPAddress $target -ErrorAction Stop; if ($lease.AddressState -like '*Reservation*') { Write-Host '[RESERVED] IP ini mempunyai Reservation.' -ForegroundColor Green; $lease | Format-Table -AutoSize } else { Write-Host '[BELUM RESERVED] IP ini wujud sebagai Lease Dinamik biasa.' -ForegroundColor Yellow; $lease | Format-Table -AutoSize } } catch { Write-Host '[BEBAS / TIADA REKOD] IP ini tidak ditemui dalam rekod Lease/Reservation DHCP.' -ForegroundColor Cyan } }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$ip='%targetip%'; $server='10.16.126.4'; try { $res = Invoke-Command -ComputerName $server -ScriptBlock { param($target) Get-DhcpServerv4Scope | Get-DhcpServerv4Reservation | Where-Object IPAddress -eq $target } -ArgumentList $ip -ErrorAction Stop; if ($res) { Write-Host '[RESERVED] IP ini TELAH DI-RESERVE!' -ForegroundColor Green; $res | Select-Object IPAddress, ClientId, ScopeId, Name, Description | Format-Table -AutoSize } else { $lease = Invoke-Command -ComputerName $server -ScriptBlock { param($target) Get-DhcpServerv4Scope | Get-DhcpServerv4Lease | Where-Object IPAddress -eq $target } -ArgumentList $ip -ErrorAction SilentlyContinue; if ($lease) { Write-Host '[BELUM RESERVED] IP ini wujud sebagai Lease Dinamik biasa.' -ForegroundColor Yellow; $lease | Format-Table -AutoSize } else { Write-Host '[BEBAS / TIADA REKOD] IP ini tiada dalam pangkalan data DHCP Server.' -ForegroundColor Cyan } } } catch { Write-Host \"[RALAT] Gagal berhubung dengan Server $server. Mesej: $($_.Exception.Message)\" -ForegroundColor Red }"
 echo ---------------------------------------------------
 echo.
 pause
