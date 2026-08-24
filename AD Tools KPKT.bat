@@ -14,9 +14,9 @@ if %errorlevel% neq 0 (
 
 :MENU
 cls
-echo =========================================================
+echo ==========================================================
 echo        MENU PENTADBIRAN ACTIVE DIRECTORY LENGKAP  v 0.4.4
-echo =========================================================
+echo ==========================================================
 echo [1] Carian Pengguna (Search User)
 echo [2] Lihat Detail Pengguna (View Details)
 echo [X] Uji Password Pengguna
