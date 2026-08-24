@@ -15,7 +15,7 @@ if %errorlevel% neq 0 (
 :MENU
 cls
 echo =========================================================
-echo        MENU PENTADBIRAN ACTIVE DIRECTORY LENGKAP  v 0.4 
+echo        MENU PENTADBIRAN ACTIVE DIRECTORY LENGKAP  v 0.4.2
 echo =========================================================
 echo [1] Carian Pengguna (Search User)
 echo [2] Lihat Detail Pengguna (View Details)
@@ -42,7 +42,7 @@ if "%choice%"=="5" goto LIST_LOCKED
 if "%choice%"=="6" goto GROUP_MGMT
 if "%choice%"=="7" goto ACCOUNT_TOGGLE
 if "%choice%"=="0" goto INSTALL_RSAT
-if "%choice%"=="X" goto CHECK_DHCP_RESERVATION
+if "%choice%"=="Z" goto CHECK_DHCP_RESERVATION
 if "%choice%"=="8" exit
 goto MENU
 
